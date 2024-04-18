@@ -1,31 +1,37 @@
 #!/usr/bin/env python3
 
-from random import choice as rc
+import email
+from random import choice as rc, randint
 
 from faker import Faker
 
 from app import app
-from models import db, Author, Post
+from models import db, Customer
 
 
 fake = Faker()
 
-with app.app_context():
+usernames = [fake.first_name() for i in range(4)]
+if "Duane" not in usernames:
+    usernames.append("Duane")
 
-    Author.query.delete()
-    Post.query.delete()
+def make_customers():
 
-    authors = []
-    for n in range(25):
-        author = Author(name=fake.name(), phone_number='1324543333')
-        authors.append(author)
+    Customer.query.delete()
+    
+    customers = []
 
-    db.session.add_all(authors)
-    posts = []
-    for n in range(25):
-        post = Post(title='Secret banana', content='This is the content Secret' * 50, category= 'Fiction', summary="Summary Secret" )
-        posts.append(post)
+    for i in range(3):
+        customer = Customer(
+            email=fake.email(),
+            age= randint(0, 125),
+            name=fake.name()
+        )
+        customers.append(customer)
 
-    db.session.add_all(posts)
+    db.session.add_all(customers)
+    db.session.commit()        
 
-    db.session.commit()
+if __name__ == '__main__':
+    with app.app_context():
+        make_customers()
